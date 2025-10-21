@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,4 +24,7 @@ public class Person {
 
     @Column(name = "password")
     private String password;
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
+    private List<Task> tasks;
 }

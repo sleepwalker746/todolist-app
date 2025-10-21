@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 
@@ -35,6 +34,10 @@ public class Task {
     @Column(name = "priority")
     @Enumerated(EnumType.STRING)
     private Priority priority;
+
+    @ManyToOne
+    @JoinColumn(name = "person_id", referencedColumnName = "id")
+    private Person owner;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

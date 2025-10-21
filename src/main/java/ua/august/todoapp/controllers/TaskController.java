@@ -3,15 +3,21 @@ package ua.august.todoapp.controllers;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.august.todoapp.dto.TaskDTO;
+import ua.august.todoapp.entity.Person;
 import ua.august.todoapp.entity.Priority;
 import ua.august.todoapp.entity.Status;
 import ua.august.todoapp.entity.Task;
+import ua.august.todoapp.services.PeopleService;
 import ua.august.todoapp.services.TaskService;
+
+import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/tasks")
@@ -19,17 +25,21 @@ public class TaskController {
 
     private final TaskService taskService;
     private final ModelMapper modelMapper;
+    private final PeopleService peopleService;
 
     @Autowired
     public TaskController(TaskService taskService,
-                          ModelMapper modelMapper) {
+                          ModelMapper modelMapper, PeopleService peopleService) {
         this.taskService = taskService;
         this.modelMapper = modelMapper;
+        this.peopleService = peopleService;
     }
 
     @GetMapping
-    public String index(Model model) {
-        model.addAttribute("tasks", taskService.findAll());
+    public String index(Model model, Principal principal) {
+        Person person = peopleService.findByName(principal.getName());
+        List<Task> tasks = taskService.findByOwnerId(person.getId());
+        model.addAttribute("tasks", tasks);
         return "tasks/index";
     }
 
@@ -41,21 +51,30 @@ public class TaskController {
     }
 
     @PostMapping
-    public String addTask(@ModelAttribute("task") @Valid TaskDTO taskDTO,
+    public String addTask(@ModelAttribute("task") @Valid Task task,
                           BindingResult bindingResult,
-                          Model model) {
+                          Model model, Principal principal) {
         if (bindingResult.hasErrors()) {
             prepareFormModel(model);
             return "tasks/new";
         }
-        taskService.save(convertToEntity(taskDTO));
+
+        Person person = peopleService.findByName(principal.getName());
+        taskService.save(task, person);
         return "redirect:/tasks";
     }
 
     @GetMapping("/{id:[0-9]+}")
-    public String show(@PathVariable("id") int id, Model model) {
+    public String show(@PathVariable("id") int id, Model model, Principal principal) {
+
         Task task = taskService.findById(id);
-        model.addAttribute("task", convertToTaskDTO(task));
+
+        Person person = peopleService.findByName(principal.getName());
+        if (task.getOwner() == null || !task.getOwner().getId().equals(person.getId())) {
+            throw new AccessDeniedException("У вас нет доступа к этой задаче");
+        }
+
+        model.addAttribute("task", task);
         return "tasks/show";
     }
 

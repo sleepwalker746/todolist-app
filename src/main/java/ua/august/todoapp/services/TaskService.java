@@ -3,6 +3,7 @@ package ua.august.todoapp.services;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ua.august.todoapp.entity.Person;
 import ua.august.todoapp.entity.Task;
 import ua.august.todoapp.repositories.TaskRepository;
 
@@ -29,8 +30,13 @@ public class TaskService {
         return foundBook.orElse(null);
     }
 
+    public List<Task> findByOwnerId(Long ownerId) {
+        return taskRepository.findByOwnerId(ownerId);
+    }
+
     @Transactional
-    public void save(Task task) {
+    public void save(Task task, Person person) {
+        task.setOwner(person);
         taskRepository.save(task);
     }
 
