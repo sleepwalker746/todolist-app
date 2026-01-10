@@ -13,7 +13,7 @@ import ua.august.todoapp.entity.Person;
 import ua.august.todoapp.entity.Priority;
 import ua.august.todoapp.entity.Status;
 import ua.august.todoapp.entity.Task;
-import ua.august.todoapp.services.PeopleService;
+import ua.august.todoapp.services.PersonDetailsService;
 import ua.august.todoapp.services.TaskService;
 
 import java.security.Principal;
@@ -24,20 +24,20 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
+    private final PersonDetailsService personDetailsService;
     private final ModelMapper modelMapper;
-    private final PeopleService peopleService;
 
     @Autowired
     public TaskController(TaskService taskService,
-                          ModelMapper modelMapper, PeopleService peopleService) {
+                          ModelMapper modelMapper, PersonDetailsService personDetailsService) {
         this.taskService = taskService;
         this.modelMapper = modelMapper;
-        this.peopleService = peopleService;
+        this.personDetailsService = personDetailsService;
     }
 
     @GetMapping
     public String index(Model model, Principal principal) {
-        Person person = peopleService.findByName(principal.getName());
+        Person person = personDetailsService.findByName(principal.getName());
         List<Task> tasks = taskService.findByOwnerId(person.getId());
         model.addAttribute("tasks", tasks);
         return "tasks/index";
@@ -59,7 +59,7 @@ public class TaskController {
             return "tasks/new";
         }
 
-        Person person = peopleService.findByName(principal.getName());
+        Person person = personDetailsService.findByName(principal.getName());
         taskService.save(task, person);
         return "redirect:/tasks";
     }
@@ -69,7 +69,7 @@ public class TaskController {
 
         Task task = taskService.findById(id);
 
-        Person person = peopleService.findByName(principal.getName());
+        Person person = personDetailsService.findByName(principal.getName());
         if (task.getOwner() == null || !task.getOwner().getId().equals(person.getId())) {
             throw new AccessDeniedException("У вас нет доступа к этой задаче");
         }

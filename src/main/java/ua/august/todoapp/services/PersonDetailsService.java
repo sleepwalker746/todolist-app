@@ -21,6 +21,11 @@ public class PersonDetailsService implements UserDetailsService {
         this.peopleRepository = peopleRepository;
     }
 
+    public Person findByName(String username){
+        return peopleRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Имя не найдено!"));
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
        Optional<Person> person = peopleRepository.findByUsername(username);
