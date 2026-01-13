@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ua.august.todoapp.dto.PersonDTO;
-import ua.august.todoapp.services.implementations.RegistrationServiceImpl;
+import ua.august.todoapp.services.interfaces.RegistrationService;
 import ua.august.todoapp.util.PersonValidator;
 
 @Controller
@@ -17,13 +17,13 @@ import ua.august.todoapp.util.PersonValidator;
 public class AuthController {
 
     private final PersonValidator personValidator;
-    private final RegistrationServiceImpl registrationServiceImpl;
+    private final RegistrationService registrationService;
 
 
     @Autowired
-    public AuthController(PersonValidator personValidator, RegistrationServiceImpl registrationServiceImpl) {
+    public AuthController(PersonValidator personValidator, RegistrationService registrationService) {
         this.personValidator = personValidator;
-        this.registrationServiceImpl = registrationServiceImpl;
+        this.registrationService = registrationService;
     }
 
 
@@ -44,9 +44,9 @@ public class AuthController {
         personValidator.validate(personDTO, bindingResult);
 
         if(bindingResult.hasErrors())
-            return "/auth/registration";
+            return "auth/registration";
 
-        registrationServiceImpl.register(personDTO);
+        registrationService.register(personDTO);
 
         return "redirect:/auth/login";
 

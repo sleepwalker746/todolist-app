@@ -19,6 +19,7 @@ public class PersonDTO {
     private String password;
 
     @NotBlank(message = "Confirm Password is required")
+    @Size(min = 6, message = "Password must be at least 6 characters long")
     private String confirmPassword;
 
 }

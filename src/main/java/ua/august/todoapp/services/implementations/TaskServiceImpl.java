@@ -16,7 +16,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class TaskServiceImpl implements TaskService <TaskDTO, Person> {
+public class TaskServiceImpl implements TaskService  {
 
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
