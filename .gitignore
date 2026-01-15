@@ -41,5 +41,11 @@ application.properties
 logs/
 *.log
 
+### Frontend ###
+node_modules
+dist
+build
+.env
+
 ### Other ###
 /.mvn/
